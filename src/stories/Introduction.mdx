@@ -1,0 +1,58 @@
+{/* Introduction.mdx */}
+
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Introduction" />
+
+# Statesman Diagram Library
+
+A beautiful, customizable browser-based diagramming library for rendering **Extended Finite State Machines** (EFSMs).
+
+## Features
+
+- 🎨 **Beautiful & Customizable** - Modern, appealing designs with full theme support
+- 🔌 **Knockout.js Integration** - Seamless integration with Knockout observables
+- 🎯 **Type-Safe** - Written in TypeScript with full type definitions
+- 🎬 **Execution Visualization** - Show current state and execution traces
+- 🏗️ **Builder Pattern** - Fluent API for creating state machines
+- 📊 **Complex Workflows** - Support for multiple inputs/outputs, conditions, and branches
+- 🧪 **Well-Tested** - Comprehensive unit test coverage
+
+## Quick Start
+
+```typescript
+import { StateMachineDiagram, StepBuilder, TransitionBuilder } from 'statesman-diagram';
+
+// Create steps
+const start = StepBuilder.create('start')
+  .asStart()
+  .withTitle('Begin')
+  .build();
+
+const end = StepBuilder.create('end')
+  .asEnd()
+  .withTitle('Complete')
+  .build();
+
+// Create state machine
+const sm = new StateMachine({
+  id: 'simple-flow',
+  name: 'Simple Flow',
+  steps: [start, end]
+});
+
+// Render
+const diagram = new StateMachineDiagram(container);
+diagram.render(sm);
+```
+
+## Examples
+
+Browse the stories in this Storybook to see:
+
+- Basic state machines
+- Decision nodes and branching
+- Conditional transitions
+- Execution visualization
+- Theme customization
+- Knockout.js integration
