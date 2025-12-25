@@ -8,7 +8,9 @@ A beautiful, customizable browser-based diagramming library for rendering **Exte
 
 ## Features
 
-- 🎨 **Beautiful & Customizable** - Modern, appealing designs with full theme support (light/dark themes included)
+- 🎨 **Stunning Visuals** - Beautiful gradients, shadows, glows, and animations for professional diagrams
+- 🎯 **Highly Customizable** - Full control over colors, fonts, effects, and styling per-step or globally
+- 💫 **Two APIs** - Choose between fluent builders or simple direct data binding
 - 🔌 **Knockout.js Integration** - Seamless integration with Knockout observables for reactive updates
 - 🎯 **Type-Safe** - Written in TypeScript with comprehensive type definitions
 - 🎬 **Execution Visualization** - Show current state, execution traces, and visit counts
@@ -85,6 +87,55 @@ const diagram = new StateMachineDiagram(container, {
   enableAnimations: true
 });
 diagram.render(stateMachine);
+```
+
+### Direct Data Binding API
+
+For simpler use cases, use the direct binding API:
+
+```typescript
+import { StateGraph } from 'statesman-diagram';
+
+// Create and initialize
+const graph = new StateGraph();
+graph.initialize(document.getElementById('diagram'), {
+  theme: 'default',
+  enableAnimations: true,
+  onNodeClick: (node) => console.log('Clicked:', node.title)
+});
+
+// Set graph data directly - no builders needed!
+graph.graph = {
+  nodes: [
+    { id: 'start', type: 'start', title: 'Begin', icon: '▶️' },
+    {
+      id: 'process',
+      type: 'process',
+      title: 'Process',
+      icon: '⚙️',
+      description: 'Process data',
+      properties: { timeout: 5000 }
+    },
+    { id: 'end', type: 'end', title: 'Complete', icon: '✅' }
+  ],
+  edges: [
+    { from: 'start', to: 'process', label: 'Start' },
+    { from: 'process', to: 'end', label: 'Done' }
+  ]
+};
+
+// Update nodes dynamically
+graph.updateNodes([
+  { id: 'process', title: 'Updated Process', icon: '🔄' }
+]);
+
+// Track execution
+graph.setExecutionStep('process', { timestamp: Date.now() });
+graph.markTransitionVisited('start', 'process');
+
+// Control zoom and pan
+graph.zoom(1.2);
+graph.pan(50, 50);
 ```
 
 ## Core Concepts
@@ -232,19 +283,37 @@ const visitCount = execState.getStepVisitCount('step1');
 console.log('Step visited', visitCount, 'times');
 ```
 
-## Themes and Customization
+## Visual Customization
+
+### Enhanced Visual Features
+
+The library includes stunning visual effects that make your diagrams stand out:
+
+- **Gradients** - Smooth color gradients on all steps (vertical, horizontal, or radial)
+- **Shadows** - Soft, customizable drop shadows with color and blur control
+- **Glow Effects** - Optional colored glow for dark themes or special emphasis
+- **Animations** - Smooth transitions and hover effects
+- **Grid Background** - Optional alignment grid
+- **Custom Styling** - Per-step or global customization
 
 ### Built-in Themes
 
 ```typescript
-// Light theme (default)
+// Light theme with gradients and shadows (default)
 const diagram = new StateMachineDiagram(container, {
-  theme: 'default'
+  theme: 'default',
+  enableAnimations: true
 });
 
-// Dark theme
+// Dark theme with gradients, shadows, and glow effects
 const diagram = new StateMachineDiagram(container, {
-  theme: 'dark'
+  theme: 'dark',
+  enableAnimations: true
+});
+
+// Enable grid background
+const diagram = new StateMachineDiagram(container, {
+  showGrid: true
 });
 ```
 
@@ -272,6 +341,12 @@ const customTheme: Theme = {
   stepStyles: new Map([
     [StepType.START, {
       fill: '#95E1D3',
+      // Add beautiful gradient
+      fillGradient: {
+        start: '#BEF264',
+        end: '#84CC16',
+        direction: 'vertical'
+      },
       stroke: '#7FCDCD',
       strokeWidth: 2,
       cornerRadius: 25,
@@ -281,16 +356,63 @@ const customTheme: Theme = {
       padding: 16,
       minWidth: 120,
       minHeight: 50,
-      iconSize: 24
+      iconSize: 24,
+      // Add custom shadow
+      shadow: {
+        enabled: true,
+        blur: 10,
+        offsetX: 0,
+        offsetY: 4,
+        color: '#000000',
+        opacity: 0.2
+      },
+      // Add glow effect (great for dark themes!)
+      glow: {
+        enabled: true,
+        color: '#34D399',
+        blur: 4
+      }
     }],
     // ... other step styles
   ]),
+  // Enable/disable effects globally
+  effects: {
+    enableShadows: true,
+    enableGradients: true,
+    enableAnimations: true,
+    enableGlow: false  // Usually for dark themes
+  },
+  // Configure grid
+  grid: {
+    enabled: false,
+    size: 20,
+    color: '#E5E7EB',
+    opacity: 0.3
+  },
   // ... other theme properties
 };
 
 // Register and use custom theme
 diagram.registerTheme(customTheme);
 diagram.setTheme('custom');
+```
+
+### Per-Step Styling
+
+Override styles for individual steps:
+
+```typescript
+// Create step with custom styling
+const customStep = StepBuilder.create('special')
+  .asProcess()
+  .withTitle('Special Step')
+  .withProperty('customStyle', {
+    fill: '#FF6B6B',
+    stroke: '#FF5252',
+    strokeWidth: 3,
+    cornerRadius: 15
+  })
+  .build();
 ```
 
 ### Diagram Options

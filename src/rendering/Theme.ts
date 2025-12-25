@@ -21,6 +21,7 @@ export interface ColorScheme {
 
 export interface StepStyle {
   fill: string;
+  fillGradient?: { start: string; end: string; direction: 'vertical' | 'horizontal' | 'radial' };
   stroke: string;
   strokeWidth: number;
   cornerRadius: number;
@@ -31,6 +32,21 @@ export interface StepStyle {
   minWidth: number;
   minHeight: number;
   iconSize: number;
+  shadow?: {
+    enabled: boolean;
+    blur: number;
+    offsetX: number;
+    offsetY: number;
+    color: string;
+    opacity: number;
+  };
+  glow?: {
+    enabled: boolean;
+    color: string;
+    blur: number;
+  };
+  opacity?: number;
+  className?: string;
 }
 
 export interface NodeStyle {
@@ -50,6 +66,10 @@ export interface TransitionStyle {
   labelFontFamily: string;
   labelBackground: string;
   labelPadding: number;
+  curveStyle: 'curved' | 'straight' | 'stepped';
+  animationSpeed?: number;
+  highlightColor?: string;
+  opacity?: number;
 }
 
 export interface Theme {
@@ -63,6 +83,18 @@ export interface Theme {
     horizontal: number;
     vertical: number;
     nodeSpacing: number;
+  };
+  effects?: {
+    enableShadows: boolean;
+    enableGradients: boolean;
+    enableAnimations: boolean;
+    enableGlow: boolean;
+  };
+  grid?: {
+    enabled: boolean;
+    size: number;
+    color: string;
+    opacity: number;
   };
 }
 
@@ -88,6 +120,7 @@ export const DefaultTheme: Theme = {
   stepStyles: new Map([
     [StepType.START, {
       fill: '#10B981',
+      fillGradient: { start: '#34D399', end: '#10B981', direction: 'vertical' },
       stroke: '#059669',
       strokeWidth: 2,
       cornerRadius: 25,
@@ -97,10 +130,19 @@ export const DefaultTheme: Theme = {
       padding: 16,
       minWidth: 120,
       minHeight: 50,
-      iconSize: 24
+      iconSize: 24,
+      shadow: {
+        enabled: true,
+        blur: 8,
+        offsetX: 0,
+        offsetY: 4,
+        color: '#000000',
+        opacity: 0.15
+      }
     }],
     [StepType.END, {
       fill: '#EF4444',
+      fillGradient: { start: '#F87171', end: '#EF4444', direction: 'vertical' },
       stroke: '#DC2626',
       strokeWidth: 2,
       cornerRadius: 25,
@@ -110,10 +152,19 @@ export const DefaultTheme: Theme = {
       padding: 16,
       minWidth: 120,
       minHeight: 50,
-      iconSize: 24
+      iconSize: 24,
+      shadow: {
+        enabled: true,
+        blur: 8,
+        offsetX: 0,
+        offsetY: 4,
+        color: '#000000',
+        opacity: 0.15
+      }
     }],
     [StepType.DECISION, {
       fill: '#F59E0B',
+      fillGradient: { start: '#FBBF24', end: '#F59E0B', direction: 'vertical' },
       stroke: '#D97706',
       strokeWidth: 2,
       cornerRadius: 8,
@@ -123,10 +174,19 @@ export const DefaultTheme: Theme = {
       padding: 16,
       minWidth: 140,
       minHeight: 80,
-      iconSize: 24
+      iconSize: 24,
+      shadow: {
+        enabled: true,
+        blur: 6,
+        offsetX: 0,
+        offsetY: 3,
+        color: '#000000',
+        opacity: 0.12
+      }
     }],
     [StepType.PROCESS, {
       fill: '#4F46E5',
+      fillGradient: { start: '#6366F1', end: '#4F46E5', direction: 'vertical' },
       stroke: '#4338CA',
       strokeWidth: 2,
       cornerRadius: 8,
@@ -136,11 +196,20 @@ export const DefaultTheme: Theme = {
       padding: 16,
       minWidth: 160,
       minHeight: 80,
-      iconSize: 24
+      iconSize: 24,
+      shadow: {
+        enabled: true,
+        blur: 6,
+        offsetX: 0,
+        offsetY: 3,
+        color: '#000000',
+        opacity: 0.12
+      }
     }]
   ]),
   defaultStepStyle: {
     fill: '#6B7280',
+    fillGradient: { start: '#9CA3AF', end: '#6B7280', direction: 'vertical' },
     stroke: '#4B5563',
     strokeWidth: 2,
     cornerRadius: 8,
@@ -150,7 +219,15 @@ export const DefaultTheme: Theme = {
     padding: 16,
     minWidth: 140,
     minHeight: 80,
-    iconSize: 24
+    iconSize: 24,
+    shadow: {
+      enabled: true,
+      blur: 6,
+      offsetX: 0,
+      offsetY: 3,
+      color: '#000000',
+      opacity: 0.12
+    }
   },
   nodeStyle: {
     radius: 6,
@@ -167,12 +244,28 @@ export const DefaultTheme: Theme = {
     labelFontSize: 12,
     labelFontFamily: 'system-ui, -apple-system, sans-serif',
     labelBackground: '#FFFFFF',
-    labelPadding: 4
+    labelPadding: 4,
+    curveStyle: 'curved',
+    animationSpeed: 1,
+    highlightColor: '#4F46E5',
+    opacity: 0.9
   },
   spacing: {
     horizontal: 200,
     vertical: 120,
     nodeSpacing: 12
+  },
+  effects: {
+    enableShadows: true,
+    enableGradients: true,
+    enableAnimations: true,
+    enableGlow: false
+  },
+  grid: {
+    enabled: false,
+    size: 20,
+    color: '#E5E7EB',
+    opacity: 0.3
   }
 };
 
@@ -198,6 +291,7 @@ export const DarkTheme: Theme = {
   stepStyles: new Map([
     [StepType.START, {
       fill: '#065F46',
+      fillGradient: { start: '#10B981', end: '#065F46', direction: 'vertical' },
       stroke: '#34D399',
       strokeWidth: 2,
       cornerRadius: 25,
@@ -207,10 +301,24 @@ export const DarkTheme: Theme = {
       padding: 16,
       minWidth: 120,
       minHeight: 50,
-      iconSize: 24
+      iconSize: 24,
+      shadow: {
+        enabled: true,
+        blur: 12,
+        offsetX: 0,
+        offsetY: 4,
+        color: '#000000',
+        opacity: 0.3
+      },
+      glow: {
+        enabled: true,
+        color: '#34D399',
+        blur: 4
+      }
     }],
     [StepType.END, {
       fill: '#7F1D1D',
+      fillGradient: { start: '#DC2626', end: '#7F1D1D', direction: 'vertical' },
       stroke: '#F87171',
       strokeWidth: 2,
       cornerRadius: 25,
@@ -220,10 +328,24 @@ export const DarkTheme: Theme = {
       padding: 16,
       minWidth: 120,
       minHeight: 50,
-      iconSize: 24
+      iconSize: 24,
+      shadow: {
+        enabled: true,
+        blur: 12,
+        offsetX: 0,
+        offsetY: 4,
+        color: '#000000',
+        opacity: 0.3
+      },
+      glow: {
+        enabled: true,
+        color: '#F87171',
+        blur: 4
+      }
     }],
     [StepType.DECISION, {
       fill: '#78350F',
+      fillGradient: { start: '#F59E0B', end: '#78350F', direction: 'vertical' },
       stroke: '#FBBF24',
       strokeWidth: 2,
       cornerRadius: 8,
@@ -233,10 +355,24 @@ export const DarkTheme: Theme = {
       padding: 16,
       minWidth: 140,
       minHeight: 80,
-      iconSize: 24
+      iconSize: 24,
+      shadow: {
+        enabled: true,
+        blur: 10,
+        offsetX: 0,
+        offsetY: 3,
+        color: '#000000',
+        opacity: 0.25
+      },
+      glow: {
+        enabled: true,
+        color: '#FBBF24',
+        blur: 3
+      }
     }],
     [StepType.PROCESS, {
       fill: '#312E81',
+      fillGradient: { start: '#4F46E5', end: '#312E81', direction: 'vertical' },
       stroke: '#818CF8',
       strokeWidth: 2,
       cornerRadius: 8,
@@ -246,11 +382,25 @@ export const DarkTheme: Theme = {
       padding: 16,
       minWidth: 160,
       minHeight: 80,
-      iconSize: 24
+      iconSize: 24,
+      shadow: {
+        enabled: true,
+        blur: 10,
+        offsetX: 0,
+        offsetY: 3,
+        color: '#000000',
+        opacity: 0.25
+      },
+      glow: {
+        enabled: true,
+        color: '#818CF8',
+        blur: 3
+      }
     }]
   ]),
   defaultStepStyle: {
     fill: '#374151',
+    fillGradient: { start: '#4B5563', end: '#374151', direction: 'vertical' },
     stroke: '#9CA3AF',
     strokeWidth: 2,
     cornerRadius: 8,
@@ -260,7 +410,15 @@ export const DarkTheme: Theme = {
     padding: 16,
     minWidth: 140,
     minHeight: 80,
-    iconSize: 24
+    iconSize: 24,
+    shadow: {
+      enabled: true,
+      blur: 10,
+      offsetX: 0,
+      offsetY: 3,
+      color: '#000000',
+      opacity: 0.25
+    }
   },
   nodeStyle: {
     radius: 6,
@@ -277,12 +435,28 @@ export const DarkTheme: Theme = {
     labelFontSize: 12,
     labelFontFamily: 'system-ui, -apple-system, sans-serif',
     labelBackground: '#1F2937',
-    labelPadding: 4
+    labelPadding: 4,
+    curveStyle: 'curved',
+    animationSpeed: 1,
+    highlightColor: '#818CF8',
+    opacity: 0.85
   },
   spacing: {
     horizontal: 200,
     vertical: 120,
     nodeSpacing: 12
+  },
+  effects: {
+    enableShadows: true,
+    enableGradients: true,
+    enableAnimations: true,
+    enableGlow: true
+  },
+  grid: {
+    enabled: false,
+    size: 20,
+    color: '#374151',
+    opacity: 0.4
   }
 };
 

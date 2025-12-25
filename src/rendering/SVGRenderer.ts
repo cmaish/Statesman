@@ -9,6 +9,7 @@ import { Node } from '../models/Node';
 import { Point } from '../models/types';
 import { Theme, StepStyle } from './Theme';
 import { ExecutionState } from '../models/ExecutionState';
+import { SVGEffects } from './SVGEffects';
 
 export interface RenderOptions {
   showGrid?: boolean;
@@ -136,6 +137,11 @@ export class SVGRenderer {
     this.stepsGroup.innerHTML = '';
     this.nodesGroup.innerHTML = '';
 
+    // Render grid if enabled
+    if (this.theme.grid?.enabled || this.options.showGrid) {
+      this.renderGrid();
+    }
+
     // Render transitions first (so they appear behind steps)
     stateMachine.getTransitions().forEach(transition => {
       this.renderTransition(transition);
@@ -154,6 +160,27 @@ export class SVGRenderer {
 
     // Auto-fit view
     this.fitToContent();
+  }
+
+  private renderGrid(): void {
+    if (!this.theme.grid) return;
+
+    const gridRect = this.createSVGElement('rect');
+    gridRect.setAttribute('x', '-5000');
+    gridRect.setAttribute('y', '-5000');
+    gridRect.setAttribute('width', '10000');
+    gridRect.setAttribute('height', '10000');
+    const gridPattern = SVGEffects.createGrid(
+      this.theme.grid.size,
+      this.theme.grid.color,
+      this.theme.grid.opacity,
+      this.defsElement
+    );
+    gridRect.setAttribute('fill', gridPattern);
+    gridRect.setAttribute('class', 'grid-background');
+
+    // Insert grid at the beginning
+    this.mainGroup.insertBefore(gridRect, this.transitionsGroup);
   }
 
   private renderStep(step: Step): void {
@@ -183,12 +210,14 @@ export class SVGRenderer {
       rect.setAttribute('stroke-width', '4');
       rect.setAttribute('filter', 'url(#shadow)');
     } else if (isVisited) {
-      rect.setAttribute('fill', style.fill);
+      // Apply effects for visited steps
+      SVGEffects.applyEffects(rect, style, step.id, this.defsElement, this.theme);
       rect.setAttribute('stroke', this.theme.colors.primary);
       rect.setAttribute('stroke-width', '3');
       rect.setAttribute('opacity', '0.9');
     } else {
-      rect.setAttribute('fill', style.fill);
+      // Apply enhanced effects (gradients, shadows, glow)
+      SVGEffects.applyEffects(rect, style, step.id, this.defsElement, this.theme);
       rect.setAttribute('stroke', style.stroke);
       rect.setAttribute('stroke-width', String(style.strokeWidth));
     }

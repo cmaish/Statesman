@@ -33,6 +33,13 @@ export {
 
 // Diagram
 export { StateMachineDiagram, DiagramOptions } from './diagram/StateMachineDiagram';
+export {
+  StateGraph,
+  GraphData,
+  GraphNodeData,
+  GraphEdgeData,
+  StateGraphOptions
+} from './diagram/StateGraph';
 
 // Rendering
 export {
@@ -45,6 +52,8 @@ export {
   DarkTheme,
   ThemeManager
 } from './rendering/Theme';
+export { SVGEffects } from './rendering/SVGEffects';
+export { SVGRenderer, RenderOptions } from './rendering/SVGRenderer';
 
 // Layout
 export { LayoutEngine, LayoutOptions } from './layout/LayoutEngine';
