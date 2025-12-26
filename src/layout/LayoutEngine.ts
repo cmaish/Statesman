@@ -11,11 +11,13 @@ export interface LayoutOptions {
   direction: 'horizontal' | 'vertical';
   alignment: 'start' | 'center' | 'end';
   autoSpace: boolean;
+  respectManualPositions?: boolean; // Don't override manually positioned nodes
 }
 
 /**
  * Layered layout algorithm (similar to Sugiyama)
  * Places nodes in layers based on topological ordering
+ * Respects manual positioning when specified
  */
 export class LayoutEngine {
   constructor(
@@ -23,22 +25,44 @@ export class LayoutEngine {
     private readonly options: LayoutOptions = {
       direction: 'horizontal',
       alignment: 'center',
-      autoSpace: true
+      autoSpace: true,
+      respectManualPositions: true
     }
   ) {}
 
   /**
    * Calculate layout for all steps in the state machine
+   * Respects manual positioning when respectManualPositions is true
    */
   layout(stateMachine: StateMachine, containerSize?: Size): void {
     const steps = stateMachine.getSteps();
     if (steps.length === 0) return;
 
-    // Build adjacency information
+    // Separate manually positioned and auto-layout steps
+    const manualSteps = new Set<string>();
+    const autoSteps: Step[] = [];
+
+    steps.forEach(step => {
+      // Check if step has a manually set position (non-zero position is considered manual)
+      const pos = step.position;
+      if (this.options.respectManualPositions && (pos.x !== 0 || pos.y !== 0)) {
+        manualSteps.add(step.id);
+      } else {
+        autoSteps.push(step);
+      }
+    });
+
+    // If all steps are manual, just update node positions
+    if (autoSteps.length === 0) {
+      this.updateNodePositions(steps);
+      return;
+    }
+
+    // Build adjacency information for auto-layout steps
     const graph = this.buildGraph(stateMachine);
 
     // Assign layers using topological sort
-    const layers = this.assignLayers(stateMachine, graph);
+    const layers = this.assignLayers(stateMachine, graph, manualSteps);
 
     // Position nodes within layers
     this.positionNodes(layers, containerSize);
@@ -85,14 +109,15 @@ export class LayoutEngine {
 
   private assignLayers(
     stateMachine: StateMachine,
-    graph: Map<string, Set<string>>
+    graph: Map<string, Set<string>>,
+    manualSteps: Set<string>
   ): Step[][] {
     const layers: Step[][] = [];
     const visited = new Set<string>();
     const stepMap = new Map(stateMachine.getSteps().map(s => [s.id, s]));
 
-    // Start with start nodes
-    const startSteps = stateMachine.getStartSteps();
+    // Start with start nodes (excluding manual ones)
+    const startSteps = stateMachine.getStartSteps().filter(s => !manualSteps.has(s.id));
     if (startSteps.length > 0) {
       layers.push([...startSteps]);
       startSteps.forEach(step => visited.add(step.id));
@@ -100,13 +125,13 @@ export class LayoutEngine {
 
     // Process remaining layers
     let currentLayer = 0;
-    while (visited.size < stateMachine.getSteps().length && currentLayer < layers.length) {
+    while (visited.size < stateMachine.getSteps().length - manualSteps.size && currentLayer < layers.length) {
       const nextLayer: Step[] = [];
 
       layers[currentLayer].forEach(step => {
         const neighbors = graph.get(step.id);
         neighbors?.forEach(neighborId => {
-          if (!visited.has(neighborId)) {
+          if (!visited.has(neighborId) && !manualSteps.has(neighborId)) {
             const neighborStep = stepMap.get(neighborId);
             if (neighborStep && !nextLayer.includes(neighborStep)) {
               nextLayer.push(neighborStep);
@@ -122,8 +147,8 @@ export class LayoutEngine {
       currentLayer++;
     }
 
-    // Add any remaining unvisited nodes
-    const unvisited = stateMachine.getSteps().filter(s => !visited.has(s.id));
+    // Add any remaining unvisited nodes (excluding manual)
+    const unvisited = stateMachine.getSteps().filter(s => !visited.has(s.id) && !manualSteps.has(s.id));
     if (unvisited.length > 0) {
       layers.push(unvisited);
     }

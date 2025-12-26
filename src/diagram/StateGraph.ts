@@ -41,6 +41,7 @@ export interface GraphEdgeData {
   style?: {
     stroke?: string;
     strokeWidth?: number;
+    pathStyle?: 'curved' | 'straight' | 'orthogonal' | 'stepped';
     className?: string;
   };
 }
@@ -55,8 +56,11 @@ export interface GraphData {
 
 export interface StateGraphOptions extends DiagramOptions {
   autoLayout?: boolean;
+  respectManualPositions?: boolean;  // Don't override manually positioned nodes
+  defaultEdgeStyle?: 'curved' | 'straight' | 'orthogonal' | 'stepped';
   onNodeClick?: (node: GraphNodeData) => void;
   onEdgeClick?: (edge: GraphEdgeData) => void;
+  onCanvasClick?: () => void;
 }
 
 /**
@@ -68,6 +72,11 @@ export class StateGraph {
   private options: StateGraphOptions = {};
   private _graphData?: GraphData;
   private executionState?: ExecutionState;
+  private callbacks: {
+    onNodeClick?: (node: GraphNodeData) => void;
+    onEdgeClick?: (edge: GraphEdgeData) => void;
+    onCanvasClick?: () => void;
+  } = {};
 
   /**
    * Initialize the state graph with a container element and options
@@ -76,15 +85,30 @@ export class StateGraph {
     this.container = element;
     this.options = options;
 
+    // Merge options with defaults
+    const diagramOptions: DiagramOptions = {
+      ...options,
+      layoutDirection: options.layoutDirection || 'horizontal',
+      layoutAlignment: options.layoutAlignment || 'center',
+      autoLayout: options.autoLayout !== false
+    };
+
     // Create the diagram
-    this.diagram = new StateMachineDiagram(element, options);
+    this.diagram = new StateMachineDiagram(element, diagramOptions);
+
+    // Store callbacks
+    this.callbacks = {
+      onNodeClick: options.onNodeClick,
+      onEdgeClick: options.onEdgeClick,
+      onCanvasClick: options.onCanvasClick
+    };
 
     // Set up event handlers
     if (options.onNodeClick) {
       this.diagram.onStepClick((step) => {
         const nodeData = this._graphData?.nodes.find(n => n.id === step.id);
-        if (nodeData && options.onNodeClick) {
-          options.onNodeClick(nodeData);
+        if (nodeData && this.callbacks.onNodeClick) {
+          this.callbacks.onNodeClick(nodeData);
         }
       });
     }

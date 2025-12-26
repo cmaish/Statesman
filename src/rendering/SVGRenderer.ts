@@ -10,6 +10,7 @@ import { Point } from '../models/types';
 import { Theme, StepStyle } from './Theme';
 import { ExecutionState } from '../models/ExecutionState';
 import { SVGEffects } from './SVGEffects';
+import { PathUtil } from './PathUtil';
 
 export interface RenderOptions {
   showGrid?: boolean;
@@ -351,9 +352,9 @@ export class SVGRenderer {
     group.setAttribute('class', 'transition');
     group.setAttribute('data-transition-id', transition.id);
 
-    // Calculate control points for cubic bezier curve
-    const midX = (start.x + end.x) / 2;
-    const path = `M ${start.x} ${start.y} C ${midX} ${start.y}, ${midX} ${end.y}, ${end.x} ${end.y}`;
+    // Generate path using the specified curve style
+    const pathStyle = style.curveStyle || 'curved';
+    const path = PathUtil.generatePath(start, end, pathStyle);
 
     const pathElement = this.createSVGElement('path');
     pathElement.setAttribute('d', path);

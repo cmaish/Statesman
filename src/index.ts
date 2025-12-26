@@ -54,6 +54,7 @@ export {
 } from './rendering/Theme';
 export { SVGEffects } from './rendering/SVGEffects';
 export { SVGRenderer, RenderOptions } from './rendering/SVGRenderer';
+export { PathUtil, PathStyle } from './rendering/PathUtil';
 
 // Layout
 export { LayoutEngine, LayoutOptions } from './layout/LayoutEngine';
